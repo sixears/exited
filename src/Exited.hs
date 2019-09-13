@@ -4,7 +4,7 @@
 {-# LANGUAGE UnicodeSyntax     #-}
 
 module Exited
-  ( ToExitCode( toExitCode )
+  ( Exited( Exited ), ToExitCode( toExitCode )
 
   , die, dieUsage, doMain
 
@@ -14,7 +14,7 @@ module Exited
   , exitCodeInternal, exitInternal
   , exitCodeFail    , exitFail
 
-  , exitWith, exitWith'
+  , exited, exitWith, exitWith'
   )
 where
 
