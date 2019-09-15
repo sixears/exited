@@ -6,7 +6,7 @@
 module Exited
   ( Exited( Exited ), ToExitCode( toExitCode )
 
-  , die, dieUsage, doMain
+  , die, dieUsage, doMain, doMain'
 
   , exitCodeSuccess , exitSuccess
   , exitCodeAbnormal, exitAbnormal
@@ -25,14 +25,14 @@ import Prelude  ( fromIntegral )
 import qualified  System.Exit
 
 import Control.Exception       ( Exception, handle, throwIO )
-import Control.Monad           ( (>>), return )
+import Control.Monad           ( (>>=), (>>), return )
 import Control.Monad.IO.Class  ( MonadIO, liftIO )
 import Data.Either             ( Either( Left, Right ) )
 import Data.Function           ( ($), id )
 import Data.Word               ( Word8 )
 import System.Environment      ( getProgName )
 import System.Exit             ( ExitCode( ExitFailure, ExitSuccess ) )
-import System.IO               ( IO, hPutStrLn, print, stderr )
+import System.IO               ( IO, hPutStrLn, putStrLn, stderr )
 
 -- base-unicode-symbols ----------------
 
@@ -106,8 +106,8 @@ dieUsage = die exitCodeUsage
      failure exit code.  Care is taken to not exit ghci if we are running there.
  -}
 doMain ∷ (Printable ε, Exception ε, ToExitCode σ) ⇒ ExceptT ε IO σ → IO ()
-doMain f = do
-  m ← ѥ f
+doMain io = do
+  m ← ѥ io
   p ← getProgName
   let handler = if p ≡ "<interactive>"
                 -- in ghci, always rethrow an exception (thus, we get an
@@ -117,9 +117,12 @@ doMain f = do
                 else \ case ExitSuccess   → return Exited; e → throwIO e
   Exited ← handle handler $
     case m of
-      Left  e → print (toString e) >> exitFail
+      Left  e → putStrLn (toString e) >> exitFail
       Right x → exitWith x
   return ()
+
+doMain' ∷ ToExitCode σ ⇒ IO σ → IO ()
+doMain' io = io >>= exitWith >> return ()
 
 ------------------------------------------------------------
 
