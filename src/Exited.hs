@@ -6,13 +6,12 @@
 module Exited
   ( Exited( Exited ), ToExitCode( toExitCode )
 
-  , die, dieUsage, doMain, doMain'
+  , die, dieAbnormal, dieInternal, dieUsage, doMain, doMain'
 
   , exitCodeSuccess , exitSuccess
   , exitCodeAbnormal, exitAbnormal
   , exitCodeUsage   , exitUsage
   , exitCodeInternal, exitInternal
-  , exitCodeFail    , exitFail
 
   , exited, exitWith, exitWith'
   )
@@ -32,7 +31,7 @@ import Data.Function           ( ($), id )
 import Data.Word               ( Word8 )
 import System.Environment      ( getProgName )
 import System.Exit             ( ExitCode( ExitFailure, ExitSuccess ) )
-import System.IO               ( IO, hPutStrLn, putStrLn, stderr )
+import System.IO               ( IO, hPutStrLn, stderr )
 
 -- base-unicode-symbols ----------------
 
@@ -75,6 +74,9 @@ instance ToExitCode Word8 where
   toExitCode 0 = ExitSuccess
   toExitCode i = ExitFailure $ fromIntegral i
 
+instance ToExitCode () where
+  toExitCode () = ExitSuccess
+
 ------------------------------------------------------------
 
 {- | Like `System.Exit.exitWith`, but allows for `Word8`; lifts to `MonadIO`,
@@ -94,19 +96,33 @@ exitWith' = exitWith
 die ∷ (MonadIO μ, ToExitCode δ, Printable ρ) ⇒ δ → ρ → μ Exited
 die ex msg = liftIO $ hPutStrLn stderr (toString msg) >> exitWith ex
 
+{- | Issue an explanation before exiting, signalling a successful run but with
+     abnormal results (e.g., a grep that found nothing). -}
+
+dieAbnormal ∷ (MonadIO μ, Printable ρ) ⇒ ρ → μ Exited
+dieAbnormal = die exitCodeAbnormal
+
 {- | Issue an explanation before exiting, signalling a usage error. -}
 
 dieUsage ∷ (MonadIO μ, Printable ρ) ⇒ ρ → μ Exited
 dieUsage = die exitCodeUsage
 
+{- | Issue an explanation before exiting, signalling an internal issue (e.g.,
+     irrefutable pattern was refuted). -}
+
+dieInternal ∷ (MonadIO μ, Printable ρ) ⇒ ρ → μ Exited
+dieInternal = die exitCodeInternal
+
 ----------------------------------------
 
 {- | Run a "main" function, which returns an exit code but may throw an
-     `Exception`.  Any Exception is caught, displayed, and causes a general
-     failure exit code.  Care is taken to not exit ghci if we are running there.
+     `Exception`.  Any Exception is caught, displayed on stderr, and causes a
+     general failure exit code.  Care is taken to not exit ghci if we are
+     running there.
  -}
-doMain ∷ (Printable ε, Exception ε, ToExitCode σ) ⇒ ExceptT ε IO σ → IO ()
-doMain io = do
+doMain ∷ (Printable ε, Exception ε, ToExitCode σ, MonadIO μ) ⇒
+         ExceptT ε IO σ → μ ()
+doMain io = liftIO $ do
   m ← ѥ io
   p ← getProgName
   let handler = if p ≡ "<interactive>"
@@ -117,7 +133,7 @@ doMain io = do
                 else \ case ExitSuccess   → return Exited; e → throwIO e
   Exited ← handle handler $
     case m of
-      Left  e → putStrLn (toString e) >> exitFail
+      Left  e → hPutStrLn stderr (toString e) >> exitInternal
       Right x → exitWith x
   return ()
 
@@ -165,15 +181,5 @@ exitCodeInternal = 255
 {- | Exit after internal issue (e.g., irrefutable pattern was refuted). -}
 exitInternal ∷ MonadIO μ ⇒ μ Exited
 exitInternal = exitWith exitCodeInternal
-
---------------------
-
-{- | Exit code for any failure not otherwise covered. -}
-exitCodeFail     ∷ Word8
-exitCodeFail     = 255
-
-{- | Exit after any failure not otherwise covered. -}
-exitFail ∷ MonadIO μ ⇒ μ Exited
-exitFail = exitWith exitCodeFail
 
 -- that's all, folks! ----------------------------------------------------------
