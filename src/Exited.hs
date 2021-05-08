@@ -6,7 +6,7 @@
 module Exited
   ( Exited( Exited ), ToExitCode( toExitCode )
 
-  , die, dieAbnormal, dieInternal, dieUsage, doMain, doMain'
+  , die, dieAbnormal, dieInternal, dieUsage, doMain, doMain', doMainCS
 
   , exitCodeSuccess , exitSuccess
   , exitCodeAbnormal, exitAbnormal
@@ -24,22 +24,36 @@ import Prelude  ( fromIntegral )
 import qualified  System.Exit
 
 import Control.Exception       ( Exception, handle, throwIO )
-import Control.Monad           ( (>>=), (>>), return )
+import Control.Monad           ( (>>=), (>>), forM_, mapM_, return, when )
 import Control.Monad.IO.Class  ( MonadIO, liftIO )
 import Data.Either             ( Either( Left, Right ) )
+import Data.Eq                 ( Eq )
 import Data.Function           ( ($), id )
+import Data.Typeable           ( typeOf )
 import Data.Word               ( Word8 )
+import GHC.Stack               ( getCCSOf )
 import System.Environment      ( getProgName )
 import System.Exit             ( ExitCode( ExitFailure, ExitSuccess ) )
 import System.IO               ( IO, hPutStrLn, stderr )
+import Text.Show               ( Show( show ) )
 
 -- base-unicode-symbols ----------------
 
-import Data.Eq.Unicode  ( (≡) )
+import Data.Eq.Unicode        ( (≡) )
+import Data.Function.Unicode  ( (∘) )
+import Data.Monoid.Unicode    ( (⊕) )
 
 -- data-textual ------------------------
 
 import Data.Textual  ( Printable, toString )
+
+-- has-callstack -----------------------
+
+import HasCallstack ( HasCallstack( renderCS ), renderCCS )
+
+-- more-unicode ------------------------
+
+import Data.MoreUnicode.Monad  ( (≫) )
 
 -- mtl ---------------------------------
 
@@ -113,13 +127,54 @@ dieUsage = die exitCodeUsage
 dieInternal ∷ (MonadIO μ, Printable ρ) ⇒ ρ → μ Exited
 dieInternal = die exitCodeInternal
 
-----------------------------------------
+------------------------------------------------------------
+
+data CallstackOnError = CallstackOnError | NoCallstackOnError
+  deriving (Eq,Show)
+
+------------------------------------------------------------
+
+data ProfCallstackOnError = ProfCallstackOnError | NoProfCallstackOnError
+  deriving (Eq,Show)
+
+------------------------------------------------------------
+
+doMainCS ∷ (Printable ε, Exception ε, HasCallstack ε, ToExitCode σ, MonadIO μ) ⇒
+           (CallstackOnError,ProfCallstackOnError) → ExceptT ε IO σ → μ ()
+doMainCS (showCS,showPCS) io = liftIO $ do
+  m ← ѥ io
+  p ← getProgName
+  let handler = if p ≡ "<interactive>"
+                -- in ghci, always rethrow an exception (thus, we get an
+                -- 'ExitSuccess' exception); ExitFailure 0 can never match
+                then \ case ExitFailure 0 → return Exited; e → throwIO e
+                -- in normal running, an ExitSuccess should just be a return
+                else \ case ExitSuccess   → return Exited; e → throwIO e
+  Exited ← handle handler $
+    case m of
+      Left  e → do
+        when (CallstackOnError ≡ showCS) $ do
+          hPutStrLn stderr $ "!Exception " ⊕ (show $ typeOf e) ⊕ "created at:"
+          forM_ (renderCS e) (hPutStrLn stderr ∘ ("  " ⊕))
+
+        when (ProfCallstackOnError ≡ showPCS) $ do
+          hPutStrLn stderr $
+            "!Exception " ⊕ (show $ typeOf e) ⊕ "created at (-prof):"
+          getCCSOf e ≫ renderCCS ≫ mapM_ (hPutStrLn stderr ∘ ("  " ⊕))
+
+        hPutStrLn stderr $ toString e
+        exitInternal
+
+      Right x → exitWith x
+  return ()
+
 
 {- | Run a "main" function, which returns an exit code but may throw an
      `Exception`.  Any Exception is caught, displayed on stderr, and causes a
      general failure exit code.  Care is taken to not exit ghci if we are
      running there.
  -}
+{-# DEPRECATED doMain "use doMainCS" #-}
 doMain ∷ (Printable ε, Exception ε, ToExitCode σ, MonadIO μ) ⇒
          ExceptT ε IO σ → μ ()
 doMain io = liftIO $ do

@@ -1,3 +1,7 @@
+1.0.4.0 2021-05-08
+==================
+- add doMainCS
+
 1.0.3.0 2020-09-14
 ==================
 - add doAbnormal, doInternal; send captured exceptions to stderr
