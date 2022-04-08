@@ -4,7 +4,8 @@
 {-# LANGUAGE UnicodeSyntax     #-}
 
 module Exited
-  ( Exited( Exited ), ToExitCode( toExitCode )
+  ( CallstackOnError(..), ProfCallstackOnError(..), Exited( Exited )
+  , ToExitCode( toExitCode )
 
   , die, dieAbnormal, dieInternal, dieUsage, doMain, doMain', doMainCS
 

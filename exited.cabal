@@ -7,7 +7,7 @@ name:                exited
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             1.0.4.0
+version:             1.0.4.1
 
 -- A short (one-line) description of the package.
 synopsis:            An Exited DataType, to represent program exit better than ()
@@ -59,8 +59,8 @@ library
   build-depends:       base, base-unicode-symbols, data-textual, mtl
 
                      , has-callstack >= 1.0.1.0
-                     , monaderror-io >= 1.1.0.1
-                     , more-unicode  >= 0.0.13.0
+                     , monaderror-io >= 1.2.2.0
+                     , more-unicode  >= 0.0.16.0
 
   -- Directories containing source files.
   hs-source-dirs:      src
