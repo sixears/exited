@@ -1,3 +1,7 @@
+1.0.4.10 2022-11-04
+===================
+- fix package name in hOutputs
+
 1.0.4.9 2022-11-03
 ==================
 - remove redundant "output" flake-utils

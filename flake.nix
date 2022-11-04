@@ -12,7 +12,7 @@
 
   outputs = { self, nixpkgs, build-utils
             , has-callstack, monaderror-io, more-unicode }:
-    build-utils.lib.hOutputs self nixpkgs "monaderror-io" {
+    build-utils.lib.hOutputs self nixpkgs "exited" {
       deps = {
         inherit has-callstack monaderror-io more-unicode;
       };
