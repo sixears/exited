@@ -1,3 +1,7 @@
+1.0.4.11 2022-11-13
+===================
+- fix fixed-package-name typo in flake-build-utils
+
 1.0.4.10 2022-11-04
 ===================
 - fix package name in hOutputs
