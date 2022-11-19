@@ -7,7 +7,7 @@ name:                exited
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             1.0.4.17
+version:             1.0.4.18
 
 -- A short (one-line) description of the package.
 synopsis:            An Exited DataType, to represent program exit better than ()
