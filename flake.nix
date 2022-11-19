@@ -16,7 +16,7 @@
 #      deps = { inherit has-callstack monaderror-io more-unicode; };
       ghc = p: p.ghc8107; # for tfmt
 
-      callPackage = { mkDerivation, lib, system
+      callPackage = { mkDerivation, lib, mapPkg, system
                     , base, base-unicode-symbols, data-textual, mtl }:
         let
           pkg = build-utils.lib.flake-def-pkg system;
