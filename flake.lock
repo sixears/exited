@@ -483,16 +483,16 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1668839993,
-        "narHash": "sha256-m0alaVVK+6lc/RKXIoIaT60LwJOBfVcRnwU0X7LTkVg=",
+        "lastModified": 1668927107,
+        "narHash": "sha256-l9vVAYMvN1AUMQQS2BLDGAmGMpt4s19n+rztaQMCaro=",
         "owner": "sixears",
         "repo": "has-callstack",
-        "rev": "d40b3aff9d46d8489d651cbb01c9f71bd98eb8ee",
+        "rev": "2e6f79211fd9b336c3480514112dbfb5d35515ea",
         "type": "github"
       },
       "original": {
         "owner": "sixears",
-        "ref": "r1.0.1.17",
+        "ref": "r1.0.1.18",
         "repo": "has-callstack",
         "type": "github"
       }
@@ -528,16 +528,16 @@
         "nixpkgs": "nixpkgs_11"
       },
       "locked": {
-        "lastModified": 1668839969,
-        "narHash": "sha256-chuzZ/2e3rtevV3T6ioRLsP42kHSakuX7Fx/TVptztw=",
+        "lastModified": 1668927110,
+        "narHash": "sha256-s029Z82zeuZ4jewvnPho7zj5YhDeRn3XH94qlZe45I8=",
         "owner": "sixears",
         "repo": "monaderror-io",
-        "rev": "4e998d33d2df7cc25f815162dae52cf5519020ba",
+        "rev": "6cd77fbbe98349f92e58e958ecfe22a895a0f4e3",
         "type": "github"
       },
       "original": {
         "owner": "sixears",
-        "ref": "r1.2.5.18",
+        "ref": "r1.2.5.19",
         "repo": "monaderror-io",
         "type": "github"
       }
@@ -648,16 +648,16 @@
         "nixpkgs": "nixpkgs_12"
       },
       "locked": {
-        "lastModified": 1668838908,
-        "narHash": "sha256-oRh/NDt8+Vv0/bgj2mtVbb200ZtK947NvO67lEgTVCE=",
+        "lastModified": 1668927114,
+        "narHash": "sha256-4TlmMRQTBJwCJ2JAFA54Dgah4LPGtQC+9o7X0mhn8qw=",
         "owner": "sixears",
         "repo": "more-unicode",
-        "rev": "f80f68e20dba330972a8b9266ca3d939f2754136",
+        "rev": "a7d2bb321257047b12a2309ec31f1df1ba7e9fd9",
         "type": "github"
       },
       "original": {
         "owner": "sixears",
-        "ref": "r0.0.17.11",
+        "ref": "r0.0.17.12",
         "repo": "more-unicode",
         "type": "github"
       }
