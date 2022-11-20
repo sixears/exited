@@ -23,7 +23,7 @@
         in
           mkDerivation {
             pname = "exited";
-            version = "1.0.4.16";
+            version = "1.0.4.22";
             src = ./.;
             libraryHaskellDepends = [
               base base-unicode-symbols data-textual mtl
